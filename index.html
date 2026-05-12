@@ -179,7 +179,8 @@
     }
 
     .hero-title {
-      font-size: clamp(58px, 10vw, 132px);
+      font-size: clamp(54px, 8.5vw, 116px);
+      line-height: .95;
     }
 
     .slide-title {
@@ -188,8 +189,8 @@
 
     .lede {
       max-width: 760px;
-      font-size: clamp(18px, 2.2vw, 28px);
-      line-height: 1.34;
+      font-size: clamp(20px, 2.35vw, 30px);
+      line-height: 1.36;
       color: color-mix(in oklab, var(--text) 88%, var(--muted));
       text-wrap: pretty;
     }
@@ -246,11 +247,121 @@
       font-size: 15px;
     }
 
+    .hero-points li {
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
     .hero-grid {
       display: grid;
-      grid-template-columns: 1.3fr .7fr;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-stack {
+      display: grid;
       gap: 24px;
-      align-items: end;
+      align-content: end;
+    }
+
+    .hero-card {
+      display: grid;
+      gap: 0;
+      align-content: stretch;
+      min-height: 100%;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)),
+        rgba(14, 11, 18, .55);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-photo-wrap {
+      position: relative;
+      min-height: 620px;
+      height: 100%;
+      overflow: hidden;
+      isolation: isolate;
+      background: rgba(255,255,255,.04);
+    }
+
+    .hero-photo-wrap::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 54%;
+      background: linear-gradient(180deg, rgba(7,7,10,0) 0%, rgba(7,7,10,.1) 25%, rgba(7,7,10,.72) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 22%;
+      display: block;
+      filter: saturate(1.02) contrast(1.02);
+    }
+
+    .hero-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 18px;
+      z-index: 2;
+    }
+
+    .hero-caption {
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+      z-index: 2;
+      display: grid;
+      gap: 8px;
+    }
+
+    .hero-caption strong {
+      font-size: clamp(22px, 3vw, 34px);
+      line-height: .98;
+      letter-spacing: -.04em;
+    }
+
+    .hero-caption p {
+      max-width: 24ch;
+      color: color-mix(in oklab, var(--text) 80%, var(--muted));
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(10, 8, 14, .52);
+      backdrop-filter: blur(18px);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .hero-badge strong {
+      color: var(--accent-soft);
+      font-size: 12px;
+      letter-spacing: .08em;
     }
 
     .hero-points,
@@ -413,18 +524,24 @@
     <main class="deck" id="deck">
       <section class="slide" id="s1" data-label="Интро">
         <div class="slide__inner hero-grid">
-          <div>
+          <div class="hero-stack">
             <div class="eyebrow">Адаптация 2.0 · первая встреча</div>
-            <h1 class="hero-title">AI как <span class="accent-italic">рычаг</span>, а не как игрушка</h1>
-            <p class="lede">Я не хочу час рассказывать вам, что такое агенты. Хочу дать более полезную штуку: карту, как умные взрослые люди из разных сфер переходят от “иногда спрашиваю ChatGPT” к системам, которые реально двигают работу, решения и продукты.</p>
-          </div>
-          <aside class="panel">
-            <div class="tagline">Что заберёте</div>
+            <div class="tagline">Гостевой спич · Aram</div>
+            <h1 class="hero-title">AI как <span class="accent-italic">рычаг</span>,<br>а не игрушка</h1>
+            <p class="lede">Не про то, как разговаривать с моделью. Про то, как собирать вокруг неё рабочие системы, которые реально двигают задачи, решения и продукты.</p>
             <ul class="hero-points">
-              <li>Поймёте, где именно сейчас лежит реальная польза, а где рынок врёт.</li>
-              <li>Увидите рабочую рамку: workflow → agent → orchestration → vibe coding.</li>
-              <li>Сможете выбрать свой личный вход: как инвестор, юрист, оператор, технарь или builder.</li>
+              <li>Empy — AI-слой поверх high-stakes conversations.</li>
+              <li>Agents и orchestration — способ двигать реальные задачи, а не красивый хайп.</li>
+              <li>Vibe coding — быстрый путь от идеи до артефакта, если есть вкус и контроль.</li>
             </ul>
+          </div>
+          <aside class="hero-card">
+            <div class="hero-photo-wrap">
+              <img class="hero-photo" src="./aram-photo.jpg" alt="Aram on the beach" />
+              <div class="hero-badge-row">
+                <div class="hero-badge"><strong>Aram</strong> Empy · agents · vibe coding</div>
+              </div>
+            </div>
           </aside>
         </div>
       </section>
