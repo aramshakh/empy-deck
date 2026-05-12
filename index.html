@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Адаптация 2.0 — AI как рычаг</title>
+  <meta name="description" content="One-page presentation for Aram's mastermind talk on AI leverage, agents, and vibe coding." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: oklch(0.15 0.018 275);
+      --bg-soft: oklch(0.19 0.02 275);
+      --panel: oklch(0.22 0.022 280 / 0.72);
+      --panel-strong: oklch(0.26 0.03 280 / 0.9);
+      --text: oklch(0.95 0.01 95);
+      --muted: oklch(0.76 0.02 280);
+      --line: oklch(0.38 0.028 285 / 0.45);
+      --accent: oklch(0.74 0.17 12);
+      --accent-soft: oklch(0.84 0.09 30);
+      --shadow: 0 30px 100px rgba(0,0,0,.35);
+      --radius: 28px;
+      --section-pad: clamp(24px, 4vw, 56px);
+      --max: 1280px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Manrope", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255, 114, 76, 0.18), transparent 24%),
+        radial-gradient(circle at 85% 25%, rgba(155, 122, 255, 0.14), transparent 25%),
+        linear-gradient(180deg, #131118 0%, #17141d 38%, #100e13 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.35), transparent 70%);
+      opacity: .25;
+    }
+
+    .shell {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 20px 0 120px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 28px;
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(15, 12, 18, .66);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .brand span { color: var(--accent-soft); }
+
+    .progress-track {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+      border-radius: inherit;
+      transition: width .2s ease-out;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .deck {
+      display: grid;
+      gap: 22px;
+    }
+
+    .slide {
+      position: relative;
+      min-height: min(920px, 100svh - 76px);
+      display: grid;
+      align-items: end;
+      padding: var(--section-pad);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 8px);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)), var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      scroll-margin-top: 92px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -25% auto;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,127,93,.18), transparent 66%);
+      filter: blur(18px);
+      z-index: -1;
+    }
+
+    .slide__inner {
+      width: min(100%, 1100px);
+      display: grid;
+      gap: 26px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: currentColor;
+      opacity: .55;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    .hero-title,
+    .slide-title {
+      max-width: 12ch;
+      font-weight: 800;
+      line-height: .92;
+      letter-spacing: -.05em;
+      text-wrap: balance;
+    }
+
+    .hero-title {
+      font-size: clamp(58px, 10vw, 132px);
+    }
+
+    .slide-title {
+      font-size: clamp(40px, 6.6vw, 86px);
+    }
+
+    .lede {
+      max-width: 760px;
+      font-size: clamp(18px, 2.2vw, 28px);
+      line-height: 1.34;
+      color: color-mix(in oklab, var(--text) 88%, var(--muted));
+      text-wrap: pretty;
+    }
+
+    .accent-italic {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent-soft);
+      letter-spacing: -.02em;
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .panel,
+    .stat,
+    .path,
+    .stage {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+      border-radius: 24px;
+      padding: 18px 18px 20px;
+      min-height: 100%;
+    }
+
+    .panel h3,
+    .stat strong,
+    .path h3,
+    .stage strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 8px;
+      line-height: 1.08;
+      letter-spacing: -.03em;
+    }
+
+    .panel p,
+    .stat p,
+    .path p,
+    .stage p,
+    .mini-list li,
+    .hero-points li {
+      color: color-mix(in oklab, var(--text) 78%, var(--muted));
+      line-height: 1.44;
+      font-size: 15px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 24px;
+      align-items: end;
+    }
+
+    .hero-points,
+    .mini-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero-points li,
+    .mini-list li {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .hero-points li::before,
+    .mini-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-soft);
+    }
+
+    .quote {
+      max-width: 16ch;
+      font-size: clamp(28px, 4vw, 54px);
+      line-height: 1.02;
+      letter-spacing: -.045em;
+    }
+
+    .quote small {
+      display: block;
+      margin-top: 16px;
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stages {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .stage {
+      padding-top: 20px;
+      position: relative;
+    }
+
+    .stage::before {
+      content: attr(data-step);
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .12em;
+    }
+
+    .stage strong {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .big-line {
+      font-size: clamp(28px, 4vw, 50px);
+      line-height: 1.04;
+      letter-spacing: -.04em;
+      max-width: 20ch;
+    }
+
+    .big-line .accent-italic { color: var(--accent); }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 14px;
+    }
+
+    .matrix .panel {
+      min-height: 190px;
+    }
+
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--accent-soft);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .footer-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    a.inline-link {
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,.3);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .stages,
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .slide {
+        min-height: auto;
+        padding-top: 88px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        border-radius: 24px;
+      }
+
+      .status { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .progress-bar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">Адаптация <span>2.0</span></div>
+      <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="status" id="statusLabel">01 / 08</div>
+    </header>
+
+    <main class="deck" id="deck">
+      <section class="slide" id="s1" data-label="Интро">
+        <div class="slide__inner hero-grid">
+          <div>
+            <div class="eyebrow">Кик-офф мастермайнда · май 2026</div>
+            <h1 class="hero-title">Как превратить нейронки из <span class="accent-italic">игрушки</span> в рычаг</h1>
+            <p class="lede">Не ещё один разговор про “что такое агенты”, а взрослая карта поля: как умные люди из разных сфер переходят от чата с моделью к рабочим системам, агентам и вайб-кодингу, который реально двигает дела.</p>
+          </div>
+          <aside class="panel">
+            <div class="tagline">Зачем слушать</div>
+            <ul class="hero-points">
+              <li>Поймёте, где вы на карте AI прямо сейчас.</li>
+              <li>Увидите, что уже реально работает без магического мышления.</li>
+              <li>Уйдёте с понятным личным маршрутом на ближайший месяц.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="slide" id="s2" data-label="Сдвиг">
+        <div class="slide__inner">
+          <div class="eyebrow">01 · Что изменилось</div>
+          <h2 class="slide-title">Пользоваться LLM уже <span class="accent-italic">недостаточно</span></h2>
+          <p class="big-line">Следующее преимущество не в том, <span class="accent-italic">есть ли</span> у вас ChatGPT. Оно в том, умеете ли вы превращать модель в <span class="accent-italic">рабочий контур</span>: мысль → процесс → результат.</p>
+          <div class="grid-3">
+            <div class="stat"><strong>Вчера</strong><p>Люди мерились промптами и “секретными формулировками”.</p></div>
+            <div class="stat"><strong>Сегодня</strong><p>Выигрывают те, кто собирает вокруг модели контекст, память, ревью и повторяемость.</p></div>
+            <div class="stat"><strong>Завтра</strong><p>Сильнее всех будут не самые шумные, а те, кто превратит AI в личную и командную операционку.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s3" data-label="Зрелость">
+        <div class="slide__inner">
+          <div class="eyebrow">02 · Карта поля</div>
+          <h2 class="slide-title">Четыре уровня <span class="accent-italic">зрелости</span></h2>
+          <div class="stages">
+            <article class="stage" data-step="01"><strong>Собеседник</strong><p>Вы просто спрашиваете модель. Уже полезно, но это базовая грамотность.</p></article>
+            <article class="stage" data-step="02"><strong>Усилитель</strong><p>Модель ускоряет ресерч, драфты, разбор сложных тем и снимает когнитивную нагрузку.</p></article>
+            <article class="stage" data-step="03"><strong>Оператор</strong><p>Появляются шаблоны, контекст, цепочки, повторяемые workflows и понятная логика работы.</p></article>
+            <article class="stage" data-step="04"><strong>Сборочная среда</strong><p>Агенты, субагенты, memory, вайб-кодинг и быстрая сборка решений под задачу.</p></article>
+          </div>
+          <p class="lede">Между “я иногда спрашиваю ChatGPT” и “я строю себе рычаг” нет пропасти. Там просто несколько очень понятных ступеней.</p>
+        </div>
+      </section>
+
+      <section class="slide" id="s4" data-label="Практика">
+        <div class="slide__inner">
+          <div class="eyebrow">03 · Что уже работает</div>
+          <h2 class="slide-title">Не AGI. <span class="accent-italic">Узкие</span> рабочие контуры.</h2>
+          <div class="matrix">
+            <div class="panel"><h3>Research & synthesis</h3><p>Быстро собирать поле, сравнивать позиции, выделять паттерны, превращать хаос в рабочую картину.</p></div>
+            <div class="panel"><h3>Operator assistance</h3><p>Подсказки, драфты, checklists, decision support — когда AI не заменяет вас, а делает резче.</p></div>
+            <div class="panel"><h3>Personal workflows</h3><p>Память, шаблоны, фреймворки, собственные библиотеки контекста. Не “один чат”, а личная система.</p></div>
+            <div class="panel"><h3>Rapid building</h3><p>Собрать страницу, скрипт, прототип, внутренний инструмент или MVP за часы и дни, а не за недели.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s5" data-label="Честно">
+        <div class="slide__inner">
+          <div class="eyebrow">04 · Где рынок врёт</div>
+          <h2 class="slide-title">Агенты уже полезны. Но <span class="accent-italic">магии</span> пока нет.</h2>
+          <div class="grid-2">
+            <div class="panel"><h3>Переоценка автономности</h3><p>Оставить агента на ночь и проснуться с работающим бизнесом — красивый миф. Без рамок и проверки всё быстро плывёт.</p></div>
+            <div class="panel"><h3>Демки ≠ реальность</h3><p>То, что круто выглядит на видео, часто разваливается при первом контакте с настоящими данными, людьми и дедлайнами.</p></div>
+            <div class="panel"><h3>Вайб-кодинг бывает мусорным</h3><p>Если нет вкуса, структуры и редактуры, скорость просто ускоряет производство хлама.</p></div>
+            <div class="panel"><h3>Побеждает orchestration</h3><p>Контекст, память, декомпозиция, review loop и человек как оператор — вот где настоящая сила.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s6" data-label="Система">
+        <div class="slide__inner">
+          <div class="eyebrow">05 · Мой взгляд</div>
+          <h2 class="slide-title">Рабочая AI-система — это не модель. Это <span class="accent-italic">конструкция</span>.</h2>
+          <div class="grid-4">
+            <div class="panel"><h3>Контекст</h3><p>Без хорошего контекста AI почти всегда либо поверхностный, либо опасно самоуверенный.</p></div>
+            <div class="panel"><h3>Память</h3><p>Полезность кратно растёт, когда система помнит, что вы делаете, как мыслите и что для вас важно.</p></div>
+            <div class="panel"><h3>Рамки</h3><p>Хорошие ограничения делают результат сильнее. Свобода без формы в AI обычно не помогает.</p></div>
+            <div class="panel"><h3>Проверка</h3><p>Самый важный слой. Реальный рычаг появляется там, где есть review, taste и human-in-the-loop.</p></div>
+          </div>
+          <p class="big-line">Если коротко: <span class="accent-italic">агентность</span> — это не про “само думает”. Это про то, что система умеет <span class="accent-italic">двигаться по задаче</span> под вашим управлением.</p>
+        </div>
+      </section>
+
+      <section class="slide" id="s7" data-label="Кейсы">
+        <div class="slide__inner">
+          <div class="eyebrow">06 · Как это выглядит вживую</div>
+          <h2 class="slide-title">Из опыта: от идеи к <span class="accent-italic">артефакту</span></h2>
+          <div class="grid-3">
+            <div class="path"><h3>High-stakes conversations</h3><p>В Empy меня интересует не “ещё один AI wrapper”, а интеллект поверх реального разговора: сигналы, память, отчёт, обучение.</p></div>
+            <div class="path"><h3>Subagents & orchestration</h3><p>На практике часто сильнее работает не один “супермозг”, а декомпозиция на роли: spec → execution → review → merge.</p></div>
+            <div class="path"><h3>Хороший vibe coding</h3><p>Не хаос ради скорости, а короткий цикл: идея → прототип → проверка → нормализация → система.</p></div>
+          </div>
+          <div class="footer-line">
+            <span>Иными словами: AI полезен не там, где красиво разговаривает, а там, где помогает собирать реальность.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s8" data-label="Маршруты">
+        <div class="slide__inner">
+          <div class="eyebrow">07 · Куда заходить лично вам</div>
+          <h2 class="slide-title">Три маршрута на <span class="accent-italic">ближайший месяц</span></h2>
+          <div class="grid-3">
+            <div class="path"><h3>Для занятых нетехов</h3><p>Выберите 2–3 повторяющиеся задачи, соберите один AI-workflow и сделайте его еженедельной привычкой.</p></div>
+            <div class="path"><h3>Для операторов и основателей</h3><p>Начните с research, аналитики, внутренних помощников и быстрых прототипов под реальные бизнес-вопросы.</p></div>
+            <div class="path"><h3>Для builders</h3><p>Идите в агентные цепочки, coding copilots, internal tools и маленькие product experiments с коротким feedback loop.</p></div>
+          </div>
+          <p class="quote">Какой <span class="accent-italic">AI-рычаг</span> вы встроите в свою работу раньше, чем закончится май?<small>Лучший вопрос на выход из этой встречи</small></p>
+          <div class="footer-line">
+            <span>Сделано как scroll-based speech page: можно выступать, можно потом просто скинуть ссылку.</span>
+            <a class="inline-link" href="#s1">Наверх ↑</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const progressBar = document.getElementById('progressBar');
+    const statusLabel = document.getElementById('statusLabel');
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (!visible) return;
+      const index = slides.indexOf(visible.target);
+      const current = String(index + 1).padStart(2, '0');
+      const total = String(slides.length).padStart(2, '0');
+      progressBar.style.width = `${((index + 1) / slides.length) * 100}%`;
+      statusLabel.textContent = `${current} / ${total}`;
+      history.replaceState(null, '', `#${visible.target.id}`);
+    }, { threshold: [0.35, 0.5, 0.75] });
+
+    slides.forEach(slide => observer.observe(slide));
+  </script>
+</body>
+</html>
